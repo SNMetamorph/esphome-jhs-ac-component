@@ -1,0 +1,47 @@
+esphome:
+  name: timberk-ac
+  friendly_name: "Timberk Air Conditioner"
+
+esp8266:
+  board: d1_mini
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "your-encryption-key"
+
+ota:
+  - platform: esphome
+    password: "your-ota-apssword"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Timberk AC Hotspot"
+    password: "your-ap-password"
+
+captive_portal:
+
+uart:
+  # ATTENTION! Use GPIO4 (D2) and GPIO5 (D1) as the TX and RX for NodeMCU-like boards!
+  tx_pin: D2
+  rx_pin: D1
+  baud_rate: 9600
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+
+external_components:
+  - source: github://SNMetamorph/esphome-jhs-ac-component
+    components: [ jhs_ac ]
+    refresh: 0s
+
+climate:
+  - platform: jhs_ac
+    name: "Timberk"
