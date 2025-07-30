@@ -45,3 +45,7 @@ external_components:
 climate:
   - platform: jhs_ac
     name: "Timberk"
+    water_tank_status:
+      name: Water Tank Status
+      id: timberk_ac_water_tank_status
+      internal: false

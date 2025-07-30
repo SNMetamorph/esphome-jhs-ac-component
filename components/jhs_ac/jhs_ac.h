@@ -3,6 +3,7 @@
 #include "esphome/core/component.h"
 #include "esphome/components/climate/climate.h"
 #include "esphome/components/uart/uart.h"
+#include "esphome/components/binary_sensor/binary_sensor.h"
 #include "esphome/core/log.h"
 #include "binary_output_stream.h"
 #include "ac_state.h"
@@ -13,6 +14,8 @@ namespace jhs_ac {
 class JhsAirConditioner : public climate::Climate, public uart::UARTDevice, public esphome::Component
 {
 public:
+    JhsAirConditioner() : m_water_tank_sensor(nullptr) {};
+
     static constexpr const char *TAG = "jhs-ac";
     static constexpr float MIN_VALID_TEMPERATURE = 16.0f;
     static constexpr float MAX_VALID_TEMPERATURE = 31.0f;
@@ -27,6 +30,7 @@ public:
     void loop() override;
     void dump_config() override;
     void control(const climate::ClimateCall &call) override;
+    void set_water_tank_sensor(binary_sensor::BinarySensor *sensor);
 
 protected:
     climate::ClimateTraits traits() override;
@@ -41,6 +45,7 @@ protected:
 private:
     AirConditionerState m_state;
     climate::ClimateTraits m_traits;
+    binary_sensor::BinarySensor *m_water_tank_sensor;
 };
 
 } // namespace jhs_ac

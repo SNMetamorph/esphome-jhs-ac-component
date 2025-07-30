@@ -157,6 +157,11 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
     }
 }
 
+void JhsAirConditioner::set_water_tank_sensor(binary_sensor::BinarySensor *sensor)
+{
+    m_water_tank_sensor = sensor;
+}
+
 climate::ClimateTraits JhsAirConditioner::traits()
 {
     return m_traits;
@@ -221,6 +226,10 @@ void JhsAirConditioner::update_ac_state(const AirConditionerState &state)
     this->preset = state.sleep ? climate::CLIMATE_PRESET_SLEEP : climate::CLIMATE_PRESET_NONE;
     this->fan_mode = (state.fan_speed == AirConditionerState::FanSpeed::Low) ? climate::CLIMATE_FAN_LOW : climate::CLIMATE_FAN_HIGH;
     publish_state();
+
+    if (m_water_tank_sensor) {
+        m_water_tank_sensor->publish_state(state.water_tank_state == AirConditionerState::WaterTankState::Full);
+    }
 }
 
 bool JhsAirConditioner::validate_state_packet_checksum(const BinaryOutputStream &packet, uint32_t checksum)
