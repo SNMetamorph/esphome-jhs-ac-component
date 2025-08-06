@@ -15,6 +15,19 @@ uint32_t AirConditionerCommand::calculate_checksum(const BinaryOutputStream &pac
     }
     return sum % 256;
 }
+
+void AirConditionerCommand::serialize_command(BinaryOutputStream &packet, uint8_t function_code, uint8_t argument)
+{
+    packet.write(PACKET_START_MARKER);
+    packet.write(function_code);
     
+    for (int32_t i = 0; i < 2; i++) {
+        packet.write(argument);
+    }
+
+    packet.write<uint8_t>(calculate_checksum(packet));
+    packet.write(PACKET_END_MARKER);
+}
+
 } // namespace jhs_ac
 } // namespace esphome

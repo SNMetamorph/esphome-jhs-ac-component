@@ -25,6 +25,9 @@ public:
 
     uint32_t calculate_checksum(const BinaryOutputStream &packet);
     virtual void write_to_packet(BinaryOutputStream &packet) = 0;
+
+protected:
+    void serialize_command(BinaryOutputStream &packet, uint8_t function_code, uint8_t argument);
 };
 
 static_assert(sizeof(AirConditionerCommand::Function) == sizeof(uint8_t), "Enumeration should have single byte size.");
