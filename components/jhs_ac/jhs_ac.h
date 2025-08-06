@@ -34,8 +34,6 @@ public:
 
 protected:
     climate::ClimateTraits traits() override;
-
-    void parse_ac_state(AirConditionerState &state, BinaryOutputStream &packet, uint32_t &checksum);
     void send_packet_to_ac(const BinaryOutputStream &packet);
     void dump_packet(const char *title, const BinaryOutputStream &packet);
     void dump_ac_state(const AirConditionerState &state);

@@ -1,4 +1,5 @@
 #pragma once
+#include "binary_output_stream.h"
 #include <stdint.h>
 
 namespace esphome {
@@ -32,6 +33,7 @@ public:
         Full = 0x3
     };
 
+    void read_from_packet(const BinaryOutputStream &packet, uint32_t &checksum);
     static const char *get_mode_name(Mode mode);
 
     bool power;
@@ -42,6 +44,13 @@ public:
     FanSpeed fan_speed;
     TemperatureUnit temperature_unit;
     WaterTankState water_tank_state;
+
+    // debugging stuff, may help with futher JHS protocol reverse-engineering
+    uint8_t byte_08;
+    uint8_t byte_0A;
+    uint8_t byte_0B;
+    uint8_t byte_0C;
+    uint8_t byte_0D;
 };
 
 static_assert(sizeof(AirConditionerState::Mode) == sizeof(uint8_t), "Enumeration should have single byte size.");

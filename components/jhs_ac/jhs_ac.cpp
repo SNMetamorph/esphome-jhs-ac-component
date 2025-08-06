@@ -53,8 +53,7 @@ void JhsAirConditioner::loop()
         }
         
         dump_packet("Received packet", state_packet);
-        parse_ac_state(m_state, state_packet, checksum);
-
+        m_state.read_from_packet(state_packet, checksum);
         if (validate_state_packet_checksum(state_packet, checksum)) 
         {
             dump_ac_state(m_state);
@@ -76,7 +75,6 @@ void JhsAirConditioner::dump_config()
 void JhsAirConditioner::control(const climate::ClimateCall &call)
 {
     uint8_t packet_data[64];
-    BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
     auto mode = call.get_mode();
     auto fan_mode = call.get_fan_mode();
     auto preset = call.get_preset();
@@ -91,7 +89,7 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
         if (waking_up_ac || turning_off_ac)
         {
             PowerCommand power_command;
-            packet_stream.reset();
+            BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
             power_command.toggle(waking_up_ac ? true : false);
             power_command.write_to_packet(packet_stream);
             send_packet_to_ac(packet_stream);  
@@ -100,6 +98,8 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
         if (mode.value() != climate::CLIMATE_MODE_OFF)
         {
             ModeCommand mode_command;
+            BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
+
             switch (mode.value())
             {
                 case climate::CLIMATE_MODE_COOL:
@@ -117,7 +117,6 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
                     break;
             }
 
-            packet_stream.reset();
             mode_command.write_to_packet(packet_stream);
             send_packet_to_ac(packet_stream);
         }
@@ -126,6 +125,8 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
     if (fan_mode.has_value())
     {
         FanSpeedCommand fan_speed_command;
+        BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
+
         if (fan_mode.value() == climate::CLIMATE_FAN_LOW) {
             fan_speed_command.set_speed(AirConditionerState::FanSpeed::Low);
         }
@@ -133,7 +134,6 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
             fan_speed_command.set_speed(AirConditionerState::FanSpeed::High);
         }
         
-        packet_stream.reset();
         fan_speed_command.write_to_packet(packet_stream);
         send_packet_to_ac(packet_stream);
     }
@@ -141,8 +141,8 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
     if (preset.has_value())
     {
         SleepCommand sleep_command;
+        BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
         sleep_command.toggle(preset.value() == climate::CLIMATE_PRESET_SLEEP ? true : false);
-        packet_stream.reset();
         sleep_command.write_to_packet(packet_stream);
         send_packet_to_ac(packet_stream);
     }
@@ -150,8 +150,8 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
     if (temperature.has_value())
     {
         TemperatureCommand temperature_command;
+        BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
         temperature_command.set_temperature(static_cast<int32_t>(temperature.value()));
-        packet_stream.reset();
         temperature_command.write_to_packet(packet_stream);
         send_packet_to_ac(packet_stream);
     }
@@ -184,7 +184,6 @@ void JhsAirConditioner::dump_packet(const char *title, const BinaryOutputStream 
 
 void JhsAirConditioner::dump_ac_state(const AirConditionerState &state)
 {
-#if VERBOSE_LOGGING == 1
     ESP_LOGD(TAG, "Air conditioner state:");
     ESP_LOGD(TAG, "  Power: %s", state.power ? "On" : "Off");
     ESP_LOGD(TAG, "  Mode: %s", AirConditionerState::get_mode_name(state.mode));
@@ -194,6 +193,12 @@ void JhsAirConditioner::dump_ac_state(const AirConditionerState &state)
     ESP_LOGD(TAG, "  Fan speed: %s", (state.fan_speed == AirConditionerState::FanSpeed::Low) ? "Low" : "High");
     ESP_LOGD(TAG, "  Temperature units: %s", (state.temperature_unit == AirConditionerState::TemperatureUnit::Celsius) ? "Celsius" : "Fahrenheit");
     ESP_LOGD(TAG, "  Water tank state: %s", (state.water_tank_state == AirConditionerState::WaterTankState::Empty) ? "Empty" : "Full");
+#if VERBOSE_LOGGING == 1
+    ESP_LOGD(TAG, "  Byte [08]: 0x%02X", state.byte_08);
+    ESP_LOGD(TAG, "  Byte [0A]: 0x%02X", state.byte_0A);
+    ESP_LOGD(TAG, "  Byte [0B]: 0x%02X", state.byte_0B);
+    ESP_LOGD(TAG, "  Byte [0C]: 0x%02X", state.byte_0C);
+    ESP_LOGD(TAG, "  Byte [0D]: 0x%02X", state.byte_0D);
 #endif
 }
 
@@ -242,25 +247,6 @@ bool JhsAirConditioner::validate_state_packet_checksum(const BinaryOutputStream 
         sum += stream.read<uint8_t>().value();
     }
     return (sum % 256) == checksum;
-}
-
-void JhsAirConditioner::parse_ac_state(AirConditionerState &state, BinaryOutputStream &packet, uint32_t &checksum)
-{
-    BinaryInputStream stream(packet.get_buffer_addr(), packet.get_length());
-
-    stream.skip_bytes(3); // skip packet start marker and 2 blank bytes
-    state.power = stream.read<uint8_t>().value();
-    state.mode = stream.read<AirConditionerState::Mode>().value();
-    state.sleep = stream.read<uint8_t>().value();
-    state.temperature_ambient = stream.read<uint8_t>().value();
-    state.temperature_setting = stream.read<uint8_t>().value();
-    stream.skip_bytes(1);
-    state.fan_speed = stream.read<AirConditionerState::FanSpeed>().value();
-    stream.skip_bytes(4);
-    state.temperature_unit = stream.read<AirConditionerState::TemperatureUnit>().value();
-    state.water_tank_state = stream.read<AirConditionerState::WaterTankState>().value();
-    checksum = stream.read<uint8_t>().value();
-    stream.skip_bytes(1); // skip packet end marker
 }
 
 void JhsAirConditioner::send_packet_to_ac(const BinaryOutputStream &packet)
