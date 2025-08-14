@@ -8,8 +8,7 @@
 #include "binary_output_stream.h"
 #include "ac_state.h"
 
-namespace esphome {
-namespace jhs_ac {
+namespace esphome::jhs_ac {
 
 class JhsAirConditioner : public climate::Climate, public uart::UARTDevice, public esphome::Component
 {
@@ -46,5 +45,4 @@ private:
     binary_sensor::BinarySensor *m_water_tank_sensor;
 };
 
-} // namespace jhs_ac
-} // namespace esphome
+} // namespace esphome::jhs_ac

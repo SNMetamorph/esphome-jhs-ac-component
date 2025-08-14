@@ -3,8 +3,7 @@
 #include <optional>
 #include <cstring>
 
-namespace esphome {
-namespace jhs_ac {
+namespace esphome::jhs_ac {
 
 class BinaryInputStream
 {
@@ -57,5 +56,4 @@ private:
     const uint8_t *m_data;
 };
 
-} // namespace jhs_ac
-} // namespace esphome
+} // namespace esphome::jhs_ac

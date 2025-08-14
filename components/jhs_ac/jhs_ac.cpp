@@ -10,8 +10,7 @@
 
 #define VERBOSE_LOGGING 1
 
-namespace esphome {
-namespace jhs_ac {
+namespace esphome::jhs_ac {
 
 void JhsAirConditioner::setup()
 {
@@ -255,5 +254,4 @@ void JhsAirConditioner::send_packet_to_ac(const BinaryOutputStream &packet)
     dump_packet("Sent packet", packet);
 }
 
-} // namespace jhs_ac
-} // namespace esphome
+} // namespace esphome::jhs_ac

@@ -1,8 +1,7 @@
 #include "ac_command.h"
 #include "binary_input_stream.h"
 
-namespace esphome {
-namespace jhs_ac {
+namespace esphome::jhs_ac {
     
 uint32_t AirConditionerCommand::calculate_checksum(const BinaryOutputStream &packet)
 {
@@ -29,5 +28,4 @@ void AirConditionerCommand::serialize_command(BinaryOutputStream &packet, uint8_
     packet.write(PACKET_END_MARKER);
 }
 
-} // namespace jhs_ac
-} // namespace esphome
+} // namespace esphome::jhs_ac

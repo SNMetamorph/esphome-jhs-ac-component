@@ -2,8 +2,7 @@
 #include "binary_output_stream.h"
 #include <stdint.h>
 
-namespace esphome {
-namespace jhs_ac {
+namespace esphome::jhs_ac {
 
 class AirConditionerCommand
 {
@@ -32,5 +31,4 @@ protected:
 
 static_assert(sizeof(AirConditionerCommand::Function) == sizeof(uint8_t), "Enumeration should have single byte size.");
 
-} // namespace jhs_ac
-} // namespace esphome
+} // namespace esphome::jhs_ac

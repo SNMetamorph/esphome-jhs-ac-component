@@ -1,9 +1,8 @@
 #pragma once
 #include "ac_command.h"
 
-namespace esphome {
-namespace jhs_ac {
-    
+namespace esphome::jhs_ac {
+
 class PowerCommand : public AirConditionerCommand
 {
 public:
@@ -19,6 +18,5 @@ public:
 private:
     bool m_status;
 };
-    
-} // namespace jhs_ac
-} // namespace esphome
+
+} // namespace esphome::jhs_ac

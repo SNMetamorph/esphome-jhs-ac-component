@@ -1,8 +1,7 @@
 #include "ac_state.h"
 #include "binary_input_stream.h"
 
-namespace esphome {
-namespace jhs_ac {
+namespace esphome::jhs_ac {
 
 const char *AirConditionerState::get_mode_name(Mode mode)
 {
@@ -36,5 +35,4 @@ void AirConditionerState::read_from_packet(const BinaryOutputStream &packet, uin
     stream.skip_bytes(1); // skip packet end marker
 }
 
-} // namespace jhs_ac
-} // namespace esphome
+} // namespace esphome::jhs_ac

@@ -1,8 +1,7 @@
 #pragma once
 #include "ac_command.h"
 
-namespace esphome {
-namespace jhs_ac {
+namespace esphome::jhs_ac {
     
 class TemperatureCommand : public AirConditionerCommand
 {
@@ -20,5 +19,4 @@ private:
     int32_t m_temperature;
 };
     
-} // namespace jhs_ac
-} // namespace esphome
+} // namespace esphome::jhs_ac

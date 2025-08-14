@@ -2,8 +2,7 @@
 #include "binary_output_stream.h"
 #include <stdint.h>
 
-namespace esphome {
-namespace jhs_ac {
+namespace esphome::jhs_ac {
 
 struct AirConditionerState
 {
@@ -58,5 +57,4 @@ static_assert(sizeof(AirConditionerState::FanSpeed) == sizeof(uint8_t), "Enumera
 static_assert(sizeof(AirConditionerState::TemperatureUnit) == sizeof(uint8_t), "Enumeration should have single byte size.");
 static_assert(sizeof(AirConditionerState::WaterTankState) == sizeof(uint8_t), "Enumeration should have single byte size.");
 
-} // namespace jhs_ac
-} // namespace esphome
+} // namespace esphome::jhs_ac

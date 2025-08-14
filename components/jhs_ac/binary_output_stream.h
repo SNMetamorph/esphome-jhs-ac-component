@@ -3,8 +3,7 @@
 #include <string.h>
 #include <optional>
 
-namespace esphome {
-namespace jhs_ac {
+namespace esphome::jhs_ac {
 
 class BinaryOutputStream
 {
@@ -49,5 +48,4 @@ private:
     uint8_t *m_data;
 };
 
-} // namespace jhs_ac
-} // namespace esphome
+} // namespace esphome::jhs_ac

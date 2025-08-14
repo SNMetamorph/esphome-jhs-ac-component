@@ -2,8 +2,7 @@
 #include "ac_command.h"
 #include "ac_state.h"
 
-namespace esphome {
-namespace jhs_ac {
+namespace esphome::jhs_ac {
     
 class FanSpeedCommand : public AirConditionerCommand
 {
@@ -21,5 +20,4 @@ private:
     AirConditionerState::FanSpeed m_speed;
 };
     
-} // namespace jhs_ac
-} // namespace esphome
+} // namespace esphome::jhs_ac
