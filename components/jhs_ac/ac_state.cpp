@@ -1,5 +1,4 @@
 #include "ac_state.h"
-#include "binary_input_stream.h"
 
 namespace esphome::jhs_ac {
 
@@ -14,9 +13,8 @@ const char *AirConditionerState::get_mode_name(Mode mode)
     }
 }
 
-void AirConditionerState::read_from_packet(const BinaryOutputStream &packet, uint32_t &checksum)
+void AirConditionerState::read_from_packet(BinaryInputStream &stream, uint32_t &checksum)
 {
-    BinaryInputStream stream(packet.get_buffer_addr(), packet.get_length());
     stream.skip_bytes(3); // skip packet start marker and 2 blank bytes
     this->power = stream.read<uint8_t>().value();
     this->mode = stream.read<Mode>().value();

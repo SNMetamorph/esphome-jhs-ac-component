@@ -7,6 +7,7 @@
 #include "temperature_command.h"
 #include "esphome/core/macros.h"
 #include <cmath>
+#include <algorithm>
 
 #define VERBOSE_LOGGING 1
 
@@ -35,33 +36,8 @@ void JhsAirConditioner::setup()
 
 void JhsAirConditioner::loop()
 {
-    uint32_t checksum;
-    uint8_t packet_data[64];
-    BinaryOutputStream state_packet(packet_data, sizeof(packet_data));
-
-    while (available() >= PACKET_AC_STATE_SIZE)
-    {
-        if (peek() != PACKET_START_MARKER)
-        {
-            read(); // skip bytes until reaching packet start marker
-            continue;
-        }
-
-        for (int32_t i = 0; i < PACKET_AC_STATE_SIZE; i++) {
-            state_packet.write(static_cast<uint8_t>(read()));
-        }
-        
-        dump_packet("Received packet", state_packet);
-        m_state.read_from_packet(state_packet, checksum);
-        if (validate_state_packet_checksum(state_packet, checksum)) 
-        {
-            dump_ac_state(m_state);
-            update_ac_state(m_state);
-        }
-        else {
-            ESP_LOGW(TAG, "Invalid packet checksum, ignoring");
-        }
-    }
+    read_uart_data();
+    parse_received_data();
 }
 
 void JhsAirConditioner::dump_config()
@@ -166,15 +142,58 @@ climate::ClimateTraits JhsAirConditioner::traits()
     return m_traits;
 }
 
-void JhsAirConditioner::dump_packet(const char *title, const BinaryOutputStream &stream)
+void JhsAirConditioner::read_uart_data()
+{
+    uint32_t bytes_available = static_cast<uint32_t>(available());
+    if (bytes_available > 0)
+    {
+        const uint32_t data_size = std::min(bytes_available, m_data_buffer.capacity() - m_data_buffer.size());
+        for (int32_t i = 0; i < data_size; i++) {
+            m_data_buffer.push(read()); // TODO replace it with single call
+        }
+    }
+}
+
+void JhsAirConditioner::parse_received_data()
+{
+    while (!m_data_buffer.is_empty())
+    {
+        m_parser.process_byte(m_data_buffer.pop().value());
+        if (m_parser.packet_ready())
+        {
+            uint32_t checksum = 0;
+            uint8_t packet_buffer[64];
+            const uint32_t packet_length = m_parser.read_packet(packet_buffer, sizeof(packet_buffer));
+            BinaryInputStream state_packet(packet_buffer, packet_length);
+
+            m_state.read_from_packet(state_packet, checksum);
+            dump_packet("Received packet", state_packet.get_buffer_addr(), state_packet.get_size());
+
+            if (validate_state_packet_checksum(state_packet, checksum)) 
+            {
+                dump_ac_state(m_state);
+                update_ac_state(m_state);
+            }
+            else {
+                ESP_LOGW(TAG, "Invalid AC state packet checksum, ignoring");
+            }
+        }
+    }
+}
+
+void JhsAirConditioner::send_packet_to_ac(const BinaryOutputStream &packet)
+{
+    write_array(packet.get_buffer_addr(), packet.get_length());
+    dump_packet("Sent packet", packet.get_buffer_addr(), packet.get_length());
+}
+
+void JhsAirConditioner::dump_packet(const char *title, const uint8_t *data, uint32_t length)
 {
 #if VERBOSE_LOGGING == 1
     char str[256] = {0};
     char *pstr = str;
-    const uint8_t *data = stream.get_buffer_addr();
-
-    ESP_LOGD(TAG, "%s (%u bytes):", title, stream.get_length());
-    for (int32_t i = 0; i < stream.get_length(); i++) {
+    ESP_LOGD(TAG, "%s (%u bytes):", title, length);
+    for (int32_t i = 0; i < length; i++) {
         pstr += sprintf(pstr, "%02X ", data[i]);
     }
     ESP_LOGD(TAG, "%s", str);
@@ -236,22 +255,15 @@ void JhsAirConditioner::update_ac_state(const AirConditionerState &state)
     }
 }
 
-bool JhsAirConditioner::validate_state_packet_checksum(const BinaryOutputStream &packet, uint32_t checksum)
+bool JhsAirConditioner::validate_state_packet_checksum(const BinaryInputStream &stream, uint32_t checksum)
 {
     uint32_t sum = 0;
-    BinaryInputStream stream(packet.get_buffer_addr(), packet.get_length());
-
-    stream.skip_bytes(1);
+    BinaryInputStream packet(stream.get_buffer_addr(), stream.get_size());
+    packet.skip_bytes(1);
     for (int32_t i = 0; i < PACKET_AC_STATE_CHECKSUM_LEN; i++) {
-        sum += stream.read<uint8_t>().value();
+        sum += packet.read<uint8_t>().value();
     }
     return (sum % 256) == checksum;
-}
-
-void JhsAirConditioner::send_packet_to_ac(const BinaryOutputStream &packet)
-{
-    write_array(packet.get_buffer_addr(), packet.get_length());
-    dump_packet("Sent packet", packet);
 }
 
 } // namespace esphome::jhs_ac

@@ -1,5 +1,5 @@
 #pragma once
-#include "binary_output_stream.h"
+#include "binary_input_stream.h"
 #include <stdint.h>
 
 namespace esphome::jhs_ac {
@@ -32,7 +32,7 @@ public:
         Full = 0x3
     };
 
-    void read_from_packet(const BinaryOutputStream &packet, uint32_t &checksum);
+    void read_from_packet(BinaryInputStream &stream, uint32_t &checksum);
     static const char *get_mode_name(Mode mode);
 
     bool power;
