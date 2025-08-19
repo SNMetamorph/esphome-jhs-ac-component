@@ -47,6 +47,7 @@ public:
         return false;
     }
 
+    uint8_t peek() const { return m_data[m_offset]; }
     uint32_t get_size() const { return m_size; }
     uint32_t remaining_space() const { return m_size - m_offset; }
 
