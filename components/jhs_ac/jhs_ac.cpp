@@ -44,6 +44,7 @@ void JhsAirConditioner::loop()
 void JhsAirConditioner::dump_config()
 {
     ESP_LOGCONFIG(TAG, "JHS Air Conditioner Component:");
+    ESP_LOGCONFIG(TAG, "Protocol version: %d", JHS_AC_PROTOCOL_VERSION);
     this->dump_traits_(TAG);
     this->check_uart_settings(9600, 1, uart::UART_CONFIG_PARITY_NONE, 8);
 }
