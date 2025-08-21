@@ -15,6 +15,7 @@ namespace esphome::jhs_ac {
 
 void JhsAirConditioner::setup()
 {
+    flush();
     m_traits.set_visual_min_temperature(MIN_VALID_TEMPERATURE);
     m_traits.set_visual_max_temperature(MAX_VALID_TEMPERATURE);
     m_traits.set_visual_temperature_step(TEMPERATURE_STEP);
