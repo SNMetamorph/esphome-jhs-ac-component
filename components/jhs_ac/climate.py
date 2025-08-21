@@ -14,6 +14,8 @@ CODEOWNERS = ["@SNMetamorph"]
 DEPENDENCIES = ["climate", "uart"]
 AUTO_LOAD = ["binary_sensor"]
 
+CONF_PROTOCOL_VERSION = "protocol_version"
+
 CONF_WATER_TANK_STATUS = "water_tank_status"
 ICON_WATER_TANK_STATUS = "mdi:water-alert"
 
@@ -25,6 +27,7 @@ JhsAirConditioner = jhs_ac_ns.class_(
 CONFIG_SCHEMA = cv.All(
     climate.climate_schema(JhsAirConditioner).extend(
         {
+            cv.Required(CONF_PROTOCOL_VERSION): cv.int_range(1, 2),
             cv.Optional(CONF_WATER_TANK_STATUS): binary_sensor.binary_sensor_schema(
                 icon=ICON_WATER_TANK_STATUS,
             ).extend(
@@ -43,6 +46,8 @@ async def to_code(config):
     await climate.register_climate(var, config)
     await uart.register_uart_device(var, config)
 
+    cg.add_define("JHS_AC_PROTOCOL_VERSION", config[CONF_PROTOCOL_VERSION])
+    
     if CONF_WATER_TANK_STATUS in config:
         conf = config[CONF_WATER_TANK_STATUS]
         sens = await binary_sensor.new_binary_sensor(conf)

@@ -1,6 +1,6 @@
 esphome:
   name: timberk-ac
-  friendly_name: "Timberk Air Conditioner"
+  friendly_name: "Timberk AC"
 
 esp8266:
   board: d1_mini
@@ -15,7 +15,7 @@ api:
 
 ota:
   - platform: esphome
-    password: "your-ota-apssword"
+    password: "your-ota-password"
 
 wifi:
   ssid: !secret wifi_ssid
@@ -38,14 +38,14 @@ uart:
   stop_bits: 1
 
 external_components:
-  - source: github://SNMetamorph/esphome-jhs-ac-component
+  - source: github://SNMetamorph/esphome-jhs-ac-component@master
     components: [ jhs_ac ]
     refresh: 0s
 
 climate:
   - platform: jhs_ac
-    name: "Timberk"
+    name: "T-PAC07-P12E"
+    protocol_version: 1
     water_tank_status:
       name: Water Tank Status
-      id: timberk_ac_water_tank_status
       internal: false
