@@ -79,26 +79,20 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
         {
             ModeCommand mode_command;
             BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
+            auto desired_mode = get_mapped_ac_mode(mode.value());
 
-            switch (mode.value())
+            if (desired_mode.has_value()) 
             {
-                case climate::CLIMATE_MODE_COOL:
-                    mode_command.select(AirConditionerState::Mode::Cool);
-                    break;
-                case climate::CLIMATE_MODE_DRY:
-                    mode_command.select(AirConditionerState::Mode::Dehumidifying);
-                    break;
-                case climate::CLIMATE_MODE_FAN_ONLY:
-                    mode_command.select(AirConditionerState::Mode::Fan);
-                    break;
-                default:
-                    ESP_LOGW(TAG, "Unsupported AC mode was requested, fallback to fan only mode");
-                    mode_command.select(AirConditionerState::Mode::Fan);
-                    break;
+                if (m_state.mode != desired_mode.value())
+                {
+                    mode_command.select(desired_mode.value());
+                    mode_command.write_to_packet(packet_stream);
+                    add_packet_to_queue(packet_stream);
+                }
             }
-
-            mode_command.write_to_packet(packet_stream);
-            add_packet_to_queue(packet_stream);
+            else {
+                ESP_LOGW(TAG, "Unsupported AC mode was requested, ignoring");
+            }
         }
     }
 
@@ -106,34 +100,53 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
     {
         FanSpeedCommand fan_speed_command;
         BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
+        auto desired_fan_speed = get_mapped_fan_speed(fan_mode.value());
 
-        if (fan_mode.value() == climate::CLIMATE_FAN_LOW) {
-            fan_speed_command.set_speed(AirConditionerState::FanSpeed::Low);
+        if (desired_fan_speed.has_value())
+        {
+            if (m_state.fan_speed != desired_fan_speed.value())
+            {
+                fan_speed_command.set_speed(desired_fan_speed.value());
+                fan_speed_command.write_to_packet(packet_stream);
+                add_packet_to_queue(packet_stream);
+            }
         }
         else {
-            fan_speed_command.set_speed(AirConditionerState::FanSpeed::High);
+            ESP_LOGW(TAG, "Unsupported fan speed mode was requested, ignoring");
         }
-        
-        fan_speed_command.write_to_packet(packet_stream);
-        add_packet_to_queue(packet_stream);
     }
 
     if (preset.has_value())
     {
         SleepCommand sleep_command;
         BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
-        sleep_command.toggle(preset.value() == climate::CLIMATE_PRESET_SLEEP ? true : false);
-        sleep_command.write_to_packet(packet_stream);
-        add_packet_to_queue(packet_stream);
+
+        if (preset.value() == climate::CLIMATE_PRESET_SLEEP || preset.value() == climate::CLIMATE_PRESET_NONE)
+        {
+            const bool desired_sleep_mode = preset.value() == climate::CLIMATE_PRESET_SLEEP;
+            if (m_state.sleep != desired_sleep_mode)
+            {
+                sleep_command.toggle(desired_sleep_mode);
+                sleep_command.write_to_packet(packet_stream);
+                add_packet_to_queue(packet_stream);
+            }
+        }
+        else {
+            ESP_LOGW(TAG, "Unsupported preset was requested, ignoring");
+        }
     }
 
     if (temperature.has_value())
     {
         TemperatureCommand temperature_command;
         BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
-        temperature_command.set_temperature(static_cast<int32_t>(temperature.value()));
-        temperature_command.write_to_packet(packet_stream);
-        add_packet_to_queue(packet_stream);
+
+        if (m_state.temperature_setting != temperature.value())
+        {
+            temperature_command.set_temperature(static_cast<int32_t>(temperature.value()));
+            temperature_command.write_to_packet(packet_stream);
+            add_packet_to_queue(packet_stream);
+        }
     }
 }
 
@@ -284,7 +297,7 @@ void JhsAirConditioner::update_ac_state(const AirConditionerState &state)
             this->mode = climate::CLIMATE_MODE_FAN_ONLY;
             break;
         default:
-            ESP_LOGW(TAG, "Unknown AC mode, command was ignored");
+            ESP_LOGW(TAG, "Unknown AC mode, state update was interrupted");
             return;
         }
     }
@@ -309,6 +322,27 @@ bool JhsAirConditioner::validate_state_packet_checksum(const BinaryInputStream &
         sum += packet.read<uint8_t>().value();
     }
     return (sum % 256) == checksum;
+}
+
+std::optional<AirConditionerState::Mode> JhsAirConditioner::get_mapped_ac_mode(climate::ClimateMode climate_mode) const
+{
+    switch (climate_mode)
+    {
+        case climate::CLIMATE_MODE_COOL: return AirConditionerState::Mode::Cool;
+        case climate::CLIMATE_MODE_DRY: return AirConditionerState::Mode::Dehumidifying;
+        case climate::CLIMATE_MODE_FAN_ONLY: return AirConditionerState::Mode::Fan;
+        default: return std::nullopt;
+    }
+}
+
+std::optional<AirConditionerState::FanSpeed> JhsAirConditioner::get_mapped_fan_speed(climate::ClimateFanMode fan_mode) const
+{
+    switch (fan_mode)
+    {
+        case climate::CLIMATE_FAN_LOW: return AirConditionerState::FanSpeed::Low;
+        case climate::CLIMATE_FAN_HIGH: return AirConditionerState::FanSpeed::High;
+        default: return std::nullopt; 
+    }
 }
 
 } // namespace esphome::jhs_ac
