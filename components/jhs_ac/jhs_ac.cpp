@@ -137,6 +137,11 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
     }
 }
 
+float JhsAirConditioner::get_setup_priority() const
+{
+    return setup_priority::AFTER_WIFI;
+}
+
 void JhsAirConditioner::set_water_tank_sensor(binary_sensor::BinarySensor *sensor)
 {
     m_water_tank_sensor = sensor;

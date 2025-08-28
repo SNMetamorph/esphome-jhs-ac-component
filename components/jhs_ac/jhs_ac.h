@@ -36,6 +36,7 @@ public:
     void loop() override;
     void dump_config() override;
     void control(const climate::ClimateCall &call) override;
+    float get_setup_priority() const override;
     void set_water_tank_sensor(binary_sensor::BinarySensor *sensor);
 
 protected:
