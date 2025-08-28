@@ -6,7 +6,9 @@
 #include "sleep_command.h"
 #include "temperature_command.h"
 #include "esphome/core/macros.h"
+#include "esphome/core/application.h"
 #include <cmath>
+#include <cstring>
 #include <algorithm>
 
 #define VERBOSE_LOGGING 1
@@ -39,6 +41,7 @@ void JhsAirConditioner::loop()
 {
     read_uart_data();
     parse_received_data();
+    send_queued_command();
 }
 
 void JhsAirConditioner::dump_config()
@@ -69,7 +72,7 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
             BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
             power_command.toggle(waking_up_ac ? true : false);
             power_command.write_to_packet(packet_stream);
-            send_packet_to_ac(packet_stream);  
+            add_packet_to_queue(packet_stream);  
         }
 
         if (mode.value() != climate::CLIMATE_MODE_OFF)
@@ -95,7 +98,7 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
             }
 
             mode_command.write_to_packet(packet_stream);
-            send_packet_to_ac(packet_stream);
+            add_packet_to_queue(packet_stream);
         }
     }
 
@@ -112,7 +115,7 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
         }
         
         fan_speed_command.write_to_packet(packet_stream);
-        send_packet_to_ac(packet_stream);
+        add_packet_to_queue(packet_stream);
     }
 
     if (preset.has_value())
@@ -121,7 +124,7 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
         BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
         sleep_command.toggle(preset.value() == climate::CLIMATE_PRESET_SLEEP ? true : false);
         sleep_command.write_to_packet(packet_stream);
-        send_packet_to_ac(packet_stream);
+        add_packet_to_queue(packet_stream);
     }
 
     if (temperature.has_value())
@@ -130,7 +133,7 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
         BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
         temperature_command.set_temperature(static_cast<int32_t>(temperature.value()));
         temperature_command.write_to_packet(packet_stream);
-        send_packet_to_ac(packet_stream);
+        add_packet_to_queue(packet_stream);
     }
 }
 
@@ -183,10 +186,45 @@ void JhsAirConditioner::parse_received_data()
     }
 }
 
-void JhsAirConditioner::send_packet_to_ac(const BinaryOutputStream &packet)
+void JhsAirConditioner::send_queued_command()
 {
-    write_array(packet.get_buffer_addr(), packet.get_length());
-    dump_packet("Sent packet", packet.get_buffer_addr(), packet.get_length());
+    if (!m_tx_queue.is_empty())
+    {
+        const uint32_t current_time = App.get_loop_component_start_time();
+        if (current_time - m_last_command_send_time > TX_QUEUE_PACKETS_INTERVAL_MS)
+        {
+            auto command_packet = m_tx_queue.pop();
+            send_packet_to_ac(command_packet->data, command_packet->length);
+            m_last_command_send_time = current_time;
+        }
+    }
+}
+
+void JhsAirConditioner::add_packet_to_queue(const BinaryOutputStream &packet)
+{
+    if (m_tx_queue.is_full()) {
+        ESP_LOGE(TAG, "Command TX queue overflowed, last command ignored");
+    }
+    else
+    {
+        CommandPacket command_packet;
+        constexpr uint32_t max_packet_size = sizeof(command_packet.data);
+        if (packet.get_length() <= max_packet_size)
+        {
+            command_packet.length = packet.get_length();
+            std::memcpy(command_packet.data, packet.get_buffer_addr(), packet.get_length());
+            m_tx_queue.push(command_packet);
+        }
+        else {
+            ESP_LOGE(TAG, "Trying to send command packet larger than %d bytes, ignoring", max_packet_size);
+        }
+    }
+}
+
+void JhsAirConditioner::send_packet_to_ac(const uint8_t *data, uint32_t length)
+{
+    write_array(data, length);
+    dump_packet("Sent packet", data, length);
 }
 
 void JhsAirConditioner::dump_packet(const char *title, const uint8_t *data, uint32_t length)

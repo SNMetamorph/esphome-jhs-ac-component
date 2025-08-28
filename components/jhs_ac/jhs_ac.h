@@ -12,16 +12,25 @@
 
 namespace esphome::jhs_ac {
 
+struct CommandPacket
+{
+    uint32_t length;
+    uint8_t data[18];
+};
+
 class JhsAirConditioner : public climate::Climate, public uart::UARTDevice, public esphome::Component
 {
 public:
-    JhsAirConditioner() : m_water_tank_sensor(nullptr) {};
+    JhsAirConditioner() : 
+        m_water_tank_sensor(nullptr), 
+        m_last_command_send_time(0) {};
 
     static constexpr const char *TAG = "jhs-ac";
     static constexpr float MIN_VALID_TEMPERATURE = 16.0f;
     static constexpr float MAX_VALID_TEMPERATURE = 31.0f;
     static constexpr float TEMPERATURE_STEP = 1.0f;
     static constexpr uint8_t PACKET_AC_STATE_CHECKSUM_LEN = 15;
+    static constexpr uint32_t TX_QUEUE_PACKETS_INTERVAL_MS = 100;
 
     void setup() override;
     void loop() override;
@@ -33,7 +42,9 @@ protected:
     climate::ClimateTraits traits() override;
     void read_uart_data();
     void parse_received_data();
-    void send_packet_to_ac(const BinaryOutputStream &packet);
+    void send_queued_command();
+    void add_packet_to_queue(const BinaryOutputStream &packet);
+    void send_packet_to_ac(const uint8_t *data, uint32_t length);
     void dump_packet(const char *title, const uint8_t *data, uint32_t length);
     void dump_ac_state(const AirConditionerState &state);
     void update_ac_state(const AirConditionerState &state);
@@ -45,6 +56,8 @@ private:
     binary_sensor::BinarySensor *m_water_tank_sensor;
     PacketParser m_parser;
     RingBuffer<uint8_t, 128> m_data_buffer;
+    RingBuffer<CommandPacket, 8> m_tx_queue;
+    uint32_t m_last_command_send_time;
 };
 
 } // namespace esphome::jhs_ac
