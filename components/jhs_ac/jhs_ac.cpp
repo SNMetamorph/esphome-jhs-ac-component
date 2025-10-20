@@ -341,6 +341,7 @@ std::optional<AirConditionerState::FanSpeed> JhsAirConditioner::get_mapped_fan_s
     switch (fan_mode)
     {
         case climate::CLIMATE_FAN_LOW: return AirConditionerState::FanSpeed::Low;
+        case climate::CLIMATE_FAN_MEDIUM: return AirConditionerState::FanSpeed::Medium;
         case climate::CLIMATE_FAN_HIGH: return AirConditionerState::FanSpeed::High;
         default: return std::nullopt; 
     }
