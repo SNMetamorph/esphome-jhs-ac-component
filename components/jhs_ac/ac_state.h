@@ -38,6 +38,7 @@ public:
 
     bool power;
     bool sleep;
+    bool oscillation;
     uint32_t temperature_ambient;
     uint32_t temperature_setting;
     Mode mode;
