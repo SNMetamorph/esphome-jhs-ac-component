@@ -17,6 +17,7 @@ public:
     enum class FanSpeed : uint8_t
     {
         Low = 0x1,
+        Medium = 0x2,
         High = 0x3
     };
 
