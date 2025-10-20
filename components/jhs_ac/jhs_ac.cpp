@@ -5,6 +5,7 @@
 #include "fan_speed_command.h"
 #include "sleep_command.h"
 #include "temperature_command.h"
+#include "oscillation_command.h"
 #include "esphome/core/macros.h"
 #include "esphome/core/application.h"
 #include <cmath>
@@ -24,7 +25,7 @@ void JhsAirConditioner::setup()
     m_traits.set_supports_current_temperature(true);
     m_traits.set_supports_two_point_target_temperature(false);
 
-    m_traits.set_supported_swing_modes({});
+    m_traits.set_supported_swing_modes({climate::CLIMATE_SWING_VERTICAL});
     m_traits.set_supported_modes({climate::CLIMATE_MODE_OFF,
                                 climate::CLIMATE_MODE_COOL,
                                 climate::CLIMATE_MODE_DRY,
@@ -59,6 +60,7 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
     auto fan_mode = call.get_fan_mode();
     auto preset = call.get_preset();
     auto temperature = call.get_target_temperature();
+    auto swing_mode = call.get_swing_mode();
     
     if (mode.has_value())
     {
@@ -147,6 +149,17 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
             temperature_command.write_to_packet(packet_stream);
             add_packet_to_queue(packet_stream);
         }
+    }
+
+    if (swing_mode.has_value())
+    {
+        OscillationCommand oscillation_command;
+        BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
+        const bool desired_swing_mode = swing_mode.value() == climate::CLIMATE_SWING_VERTICAL;
+
+        oscillation_command.set_status(desired_swing_mode);
+        oscillation_command.write_to_packet(packet_stream);
+        add_packet_to_queue(packet_stream);
     }
 }
 
@@ -264,6 +277,7 @@ void JhsAirConditioner::dump_ac_state(const AirConditionerState &state)
     ESP_LOGD(TAG, "  Power: %s", state.power ? "On" : "Off");
     ESP_LOGD(TAG, "  Mode: %s", AirConditionerState::get_mode_name(state.mode));
     ESP_LOGD(TAG, "  Sleep mode: %s", state.sleep ? "On" : "Off");
+    ESP_LOGD(TAG, "  Oscillation: %s", state.oscillation ? "On" : "Off");
     ESP_LOGD(TAG, "  Ambient temperature: %u", state.temperature_ambient);
     ESP_LOGD(TAG, "  Temperature setting: %u", state.temperature_setting);
     ESP_LOGD(TAG, "  Fan speed: %s", get_fan_speed_name(state.fan_speed));
@@ -305,6 +319,7 @@ void JhsAirConditioner::update_ac_state(const AirConditionerState &state)
     this->target_temperature = state.temperature_setting;
     this->current_temperature = state.temperature_ambient;
     this->preset = state.sleep ? climate::CLIMATE_PRESET_SLEEP : climate::CLIMATE_PRESET_NONE;
+    this->swing_mode = state.oscillation ? climate::CLIMATE_SWING_VERTICAL : climate::CLIMATE_SWING_OFF;
     
     // Map AC fan speed to climate fan mode using supported modes
     auto mapped_fan_mode = get_mapped_climate_fan_mode(state.fan_speed);
