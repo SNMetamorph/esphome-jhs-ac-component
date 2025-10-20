@@ -21,10 +21,10 @@ void AirConditionerState::read_from_packet(BinaryInputStream &stream, uint32_t &
     this->sleep = stream.read<uint8_t>().value();
     this->temperature_ambient = stream.read<uint8_t>().value();
     this->temperature_setting = stream.read<uint8_t>().value();
-    this->byte_08 = stream.read<uint8_t>().value();
+    this->oscillation = stream.read<uint8_t>().value();
     this->fan_speed = stream.read<FanSpeed>().value();
     this->byte_0A = stream.read<uint8_t>().value();
-    this->oscillation = stream.read<uint8_t>().value();
+    this->byte_0B = stream.read<uint8_t>().value();
     this->byte_0C = stream.read<uint8_t>().value();
     this->byte_0D = stream.read<uint8_t>().value();
     this->temperature_unit = stream.read<TemperatureUnit>().value();
