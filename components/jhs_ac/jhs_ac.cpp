@@ -25,7 +25,7 @@ void JhsAirConditioner::setup()
     m_traits.set_supports_current_temperature(true);
     m_traits.set_supports_two_point_target_temperature(false);
 
-    m_traits.set_supported_swing_modes({climate::CLIMATE_SWING_VERTICAL});
+    m_traits.set_supported_swing_modes({climate::CLIMATE_SWING_OFF, climate::CLIMATE_SWING_VERTICAL});
     m_traits.set_supported_modes({climate::CLIMATE_MODE_OFF,
                                 climate::CLIMATE_MODE_COOL,
                                 climate::CLIMATE_MODE_DRY,
