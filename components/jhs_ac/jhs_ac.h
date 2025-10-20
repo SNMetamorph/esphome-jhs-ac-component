@@ -10,6 +10,7 @@
 #include "packet_parser.h"
 #include "ring_buffer.h"
 #include <optional>
+#include <set>
 
 namespace esphome::jhs_ac {
 
@@ -39,6 +40,7 @@ public:
     void control(const climate::ClimateCall &call) override;
     float get_setup_priority() const override;
     void set_water_tank_sensor(binary_sensor::BinarySensor *sensor);
+    void add_supported_fan_mode(climate::ClimateFanMode fan_mode);
 
 protected:
     climate::ClimateTraits traits() override;
@@ -54,10 +56,13 @@ protected:
 
     std::optional<AirConditionerState::Mode> get_mapped_ac_mode(climate::ClimateMode climate_mode) const;
     std::optional<AirConditionerState::FanSpeed> get_mapped_fan_speed(climate::ClimateFanMode fan_mode) const;
+    std::optional<climate::ClimateFanMode> get_mapped_climate_fan_mode(AirConditionerState::FanSpeed fan_speed) const;
+    const char* get_fan_speed_name(AirConditionerState::FanSpeed fan_speed) const;
 
 private:
     AirConditionerState m_state;
     climate::ClimateTraits m_traits;
+    std::set<climate::ClimateFanMode> m_supported_fan_modes;
     binary_sensor::BinarySensor *m_water_tank_sensor;
     PacketParser m_parser;
     RingBuffer<uint8_t, 128> m_data_buffer;
