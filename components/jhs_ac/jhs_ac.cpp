@@ -31,6 +31,7 @@ void JhsAirConditioner::setup()
                                 climate::CLIMATE_MODE_FAN_ONLY});
 
     m_traits.set_supported_fan_modes({climate::CLIMATE_FAN_LOW,
+                                    climate::CLIMATE_FAN_MEDIUM,
                                     climate::CLIMATE_FAN_HIGH});
 
     m_traits.set_supported_presets({climate::CLIMATE_PRESET_NONE, 
