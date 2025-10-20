@@ -30,9 +30,8 @@ void JhsAirConditioner::setup()
                                 climate::CLIMATE_MODE_DRY,
                                 climate::CLIMATE_MODE_FAN_ONLY});
 
-    m_traits.set_supported_fan_modes({climate::CLIMATE_FAN_LOW,
-                                    climate::CLIMATE_FAN_MEDIUM,
-                                    climate::CLIMATE_FAN_HIGH});
+    // Fan modes will be set via add_supported_fan_mode() calls from configuration
+    m_traits.set_supported_fan_modes(m_supported_fan_modes);
 
     m_traits.set_supported_presets({climate::CLIMATE_PRESET_NONE, 
                                     climate::CLIMATE_PRESET_SLEEP});
@@ -267,7 +266,7 @@ void JhsAirConditioner::dump_ac_state(const AirConditionerState &state)
     ESP_LOGD(TAG, "  Sleep mode: %s", state.sleep ? "On" : "Off");
     ESP_LOGD(TAG, "  Ambient temperature: %u", state.temperature_ambient);
     ESP_LOGD(TAG, "  Temperature setting: %u", state.temperature_setting);
-    ESP_LOGD(TAG, "  Fan speed: %s", (state.fan_speed == AirConditionerState::FanSpeed::Low) ? "Low" : "High");
+    ESP_LOGD(TAG, "  Fan speed: %s", get_fan_speed_name(state.fan_speed));
     ESP_LOGD(TAG, "  Temperature units: %s", (state.temperature_unit == AirConditionerState::TemperatureUnit::Celsius) ? "Celsius" : "Fahrenheit");
     ESP_LOGD(TAG, "  Water tank state: %s", (state.water_tank_state == AirConditionerState::WaterTankState::Empty) ? "Empty" : "Full");
 #if VERBOSE_LOGGING == 1
@@ -306,7 +305,13 @@ void JhsAirConditioner::update_ac_state(const AirConditionerState &state)
     this->target_temperature = state.temperature_setting;
     this->current_temperature = state.temperature_ambient;
     this->preset = state.sleep ? climate::CLIMATE_PRESET_SLEEP : climate::CLIMATE_PRESET_NONE;
-    this->fan_mode = (state.fan_speed == AirConditionerState::FanSpeed::Low) ? climate::CLIMATE_FAN_LOW : climate::CLIMATE_FAN_HIGH;
+    
+    // Map AC fan speed to climate fan mode using supported modes
+    auto mapped_fan_mode = get_mapped_climate_fan_mode(state.fan_speed);
+    if (mapped_fan_mode.has_value()) {
+        this->fan_mode = mapped_fan_mode.value();
+    }
+    
     publish_state();
 
     if (m_water_tank_sensor) {
@@ -333,6 +338,49 @@ std::optional<AirConditionerState::Mode> JhsAirConditioner::get_mapped_ac_mode(c
         case climate::CLIMATE_MODE_DRY: return AirConditionerState::Mode::Dehumidifying;
         case climate::CLIMATE_MODE_FAN_ONLY: return AirConditionerState::Mode::Fan;
         default: return std::nullopt;
+    }
+}
+
+void JhsAirConditioner::add_supported_fan_mode(climate::ClimateFanMode fan_mode)
+{
+    m_supported_fan_modes.insert(fan_mode);
+    m_traits.set_supported_fan_modes(m_supported_fan_modes);
+}
+
+std::optional<climate::ClimateFanMode> JhsAirConditioner::get_mapped_climate_fan_mode(AirConditionerState::FanSpeed fan_speed) const
+{
+    switch (fan_speed)
+    {
+        case AirConditionerState::FanSpeed::Low:
+            if (m_supported_fan_modes.count(climate::CLIMATE_FAN_LOW))
+                return climate::CLIMATE_FAN_LOW;
+            break;
+        case AirConditionerState::FanSpeed::Medium:
+            if (m_supported_fan_modes.count(climate::CLIMATE_FAN_MEDIUM))
+                return climate::CLIMATE_FAN_MEDIUM;
+            break;
+        case AirConditionerState::FanSpeed::High:
+            if (m_supported_fan_modes.count(climate::CLIMATE_FAN_HIGH))
+                return climate::CLIMATE_FAN_HIGH;
+            break;
+    }
+    
+    // Fallback to first supported mode if exact match not found
+    if (!m_supported_fan_modes.empty()) {
+        return *m_supported_fan_modes.begin();
+    }
+    
+    return std::nullopt;
+}
+
+const char* JhsAirConditioner::get_fan_speed_name(AirConditionerState::FanSpeed fan_speed) const
+{
+    switch (fan_speed)
+    {
+        case AirConditionerState::FanSpeed::Low: return "Low";
+        case AirConditionerState::FanSpeed::Medium: return "Medium";
+        case AirConditionerState::FanSpeed::High: return "High";
+        default: return "Unknown";
     }
 }
 
