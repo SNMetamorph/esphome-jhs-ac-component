@@ -46,6 +46,10 @@ climate:
   - platform: jhs_ac
     name: "T-PAC07-P12E"
     protocol_version: 1
+    supported_fan_modes: # default is LOW & HIGH
+      - LOW
+      - MEDIUM
+      - HIGH
     water_tank_status:
       name: Water Tank Status
       internal: false
