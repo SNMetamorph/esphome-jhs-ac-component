@@ -45,15 +45,15 @@ external_components:
 climate:
   - platform: jhs_ac
     name: "T-PAC07-P12E"
-    protocol_version: 1
-    supported_modes: # add - HEAT if your unit supports it
+    protocol_version: 1 # available options are 1 & 2, select one that works correctly with your AC
+    supported_modes: # add HEAT mode, if your unit supports it
       - COOL
       - DRY
       - FAN_ONLY
-    supported_fan_modes: # add - MEDIUM if your unit supports it
+    supported_fan_modes: # add MEDIUM fan mode, if your unit supports it
       - LOW
       - HIGH
-    supported_swing_modes: # add - VERTICAL if your unit supports it
+    supported_swing_modes: # add VERTICAL swing mode, if your unit supports it
     water_tank_status:
       name: Water Tank Status
       internal: false
