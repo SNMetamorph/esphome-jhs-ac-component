@@ -85,7 +85,7 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
             BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
             auto desired_mode = get_mapped_ac_mode(mode.value());
 
-            if (desired_mode.has_value()) 
+            if (desired_mode.has_value() && m_supported_modes.count(mode.value())) 
             {
                 if (m_state.mode != desired_mode.value())
                 {
