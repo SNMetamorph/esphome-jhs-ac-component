@@ -10,14 +10,7 @@ public:
     {
         constexpr uint32_t protocol_version = JHS_AC_PROTOCOL_VERSION;
         uint8_t argument = 0;
-
-        if (protocol_version == 1) {
-            // Protocol v1 uses a toggle command
-            argument = 0x01;
-        } else {
-            // Protocol v2 uses separate on/off commands
-            argument = m_status ? 0x01 : 0x00;
-        }
+        argument = m_status ? 0x01 : 0x00;
         
         serialize_command(packet, 
             static_cast<uint8_t>(Function::Oscillation), 
