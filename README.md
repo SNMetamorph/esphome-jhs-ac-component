@@ -21,12 +21,12 @@ Next, use this scheme to connect all the necessary pins:
 
 ## Tested & supported air conditioners
 
-| *Brand*      | *Model name*      | *Protocol version*
-|--------------|-------------------|-------------------
-| Timberk      | T-PAC07-P12E      | 1
-| Timberk      | T-PAC07-P09E-WF   | 1
-| Goldair      | GCPAC350W         | 1
-| Lifetime Air | JHS-A016-09KR2/A  | 2
+| *Brand*      | *Model name*      | *Protocol version* | *OEM model name*
+|--------------|-------------------|--------------------|-----------------
+| Timberk      | T-PAC07-P12E      | 1                  | [A029A](https://www.jhs8.com/products_detail/107.html)
+| Timberk      | T-PAC07-P09E-WF   | 1                  | [A029A](https://www.jhs8.com/products_detail/107.html)
+| Goldair      | GCPAC350W         | 1                  | [A018C](https://www.jhs8.com/products_detail/26.html)
+| Lifetime Air | JHS-A016-09KR2/A  | 2                  | [A016A](https://www.jhs8.com/products_detail/10.html)
 
 Feel free to share your experience in repository issues or submit pull requests to make this list more completed.
 
