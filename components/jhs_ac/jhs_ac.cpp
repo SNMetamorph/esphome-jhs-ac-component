@@ -27,15 +27,14 @@ void JhsAirConditioner::setup()
 
     if (!m_supported_swing_modes.empty()) {
         m_supported_swing_modes.insert(climate::CLIMATE_SWING_OFF);
-        m_traits.set_supported_swing_modes(m_supported_swing_modes);
     }
     
     m_supported_modes.insert(climate::CLIMATE_MODE_OFF);
     m_traits.set_supported_modes(m_supported_modes);
-
-    // Fan modes will be set via add_supported_fan_mode() calls from configuration
     m_traits.set_supported_fan_modes(m_supported_fan_modes);
-    
+    m_traits.set_supported_swing_modes(m_supported_swing_modes);
+
+    // hardcoded for now, but may become optional in future
     m_traits.set_supported_presets({climate::CLIMATE_PRESET_NONE, 
                                     climate::CLIMATE_PRESET_SLEEP});
 }
@@ -155,17 +154,17 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
 
     if (swing_mode.has_value())
     {
-            OscillationCommand oscillation_command;
-            BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
-            const bool desired_swing_mode = swing_mode.value() == climate::CLIMATE_SWING_VERTICAL;
+        OscillationCommand oscillation_command;
+        BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
+        const bool desired_swing_mode = swing_mode.value() == climate::CLIMATE_SWING_VERTICAL;
 
         if (m_supported_swing_modes.count(swing_mode.value())) 
         {
             if (m_state.oscillation != desired_swing_mode)
             {
-            oscillation_command.set_status(desired_swing_mode);
-            oscillation_command.write_to_packet(packet_stream);
-            add_packet_to_queue(packet_stream);
+                oscillation_command.set_status(desired_swing_mode);
+                oscillation_command.write_to_packet(packet_stream);
+                add_packet_to_queue(packet_stream);
             }
         }
         else {
@@ -334,12 +333,17 @@ void JhsAirConditioner::update_ac_state(const AirConditionerState &state)
     this->preset = state.sleep ? climate::CLIMATE_PRESET_SLEEP : climate::CLIMATE_PRESET_NONE;
     this->swing_mode = state.oscillation ? climate::CLIMATE_SWING_VERTICAL : climate::CLIMATE_SWING_OFF;
     
-    // Map AC fan speed to climate fan mode using supported modes
+    // map AC fan speed to climate fan mode using supported modes
     auto mapped_fan_mode = get_mapped_climate_fan_mode(state.fan_speed);
-    if (mapped_fan_mode.has_value()) {
+    if (mapped_fan_mode.has_value() && m_supported_fan_modes.count(mapped_fan_mode.value())) {
         this->fan_mode = mapped_fan_mode.value();
     }
-    
+    else 
+    {
+        // fallback to first supported mode if exact match not found
+        this->fan_mode = *m_supported_fan_modes.begin();
+    }
+
     publish_state();
 
     if (m_water_tank_sensor) {
@@ -378,7 +382,6 @@ void JhsAirConditioner::add_supported_mode(climate::ClimateMode mode)
 void JhsAirConditioner::add_supported_fan_mode(climate::ClimateFanMode fan_mode)
 {
     m_supported_fan_modes.insert(fan_mode);
-    m_traits.set_supported_fan_modes(m_supported_fan_modes);
 }
 
 void JhsAirConditioner::add_supported_swing_mode(climate::ClimateSwingMode swing_mode)
@@ -390,26 +393,11 @@ std::optional<climate::ClimateFanMode> JhsAirConditioner::get_mapped_climate_fan
 {
     switch (fan_speed)
     {
-        case AirConditionerState::FanSpeed::Low:
-            if (m_supported_fan_modes.count(climate::CLIMATE_FAN_LOW))
-                return climate::CLIMATE_FAN_LOW;
-            break;
-        case AirConditionerState::FanSpeed::Medium:
-            if (m_supported_fan_modes.count(climate::CLIMATE_FAN_MEDIUM))
-                return climate::CLIMATE_FAN_MEDIUM;
-            break;
-        case AirConditionerState::FanSpeed::High:
-            if (m_supported_fan_modes.count(climate::CLIMATE_FAN_HIGH))
-                return climate::CLIMATE_FAN_HIGH;
-            break;
+        case AirConditionerState::FanSpeed::Low: return climate::CLIMATE_FAN_LOW;
+        case AirConditionerState::FanSpeed::Medium: return climate::CLIMATE_FAN_MEDIUM;
+        case AirConditionerState::FanSpeed::High: return climate::CLIMATE_FAN_HIGH;
+        default: return std::nullopt;
     }
-    
-    // Fallback to first supported mode if exact match not found
-    if (!m_supported_fan_modes.empty()) {
-        return *m_supported_fan_modes.begin();
-    }
-    
-    return std::nullopt;
 }
 
 const char* JhsAirConditioner::get_fan_speed_name(AirConditionerState::FanSpeed fan_speed) const
