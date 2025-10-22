@@ -9,6 +9,7 @@ const char *AirConditionerState::get_mode_name(Mode mode)
         case Mode::Cool: return "Cool";
         case Mode::Dehumidifying: return "Dehumidifying";
         case Mode::Fan: return "Fan";
+        case Mode::Heat: return "Heat";
         default: return "Unknown";
     }
 }
