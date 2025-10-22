@@ -23,6 +23,7 @@ Next, use this scheme to connect all the necessary pins:
 
 - Timberk T-PAC07-P12E
 - Timberk T-PAC07-P09E-WF
+- Goldair GCPAC350W
 
 Feel free to share your experience in repository issues or submit pull requests to make this list more completed.
 
