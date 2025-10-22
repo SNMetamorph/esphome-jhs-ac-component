@@ -155,15 +155,20 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
 
     if (swing_mode.has_value())
     {
-        if (m_supported_swing_modes.count(swing_mode.value())) {
             OscillationCommand oscillation_command;
             BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
             const bool desired_swing_mode = swing_mode.value() == climate::CLIMATE_SWING_VERTICAL;
 
+        if (m_supported_swing_modes.count(swing_mode.value())) 
+        {
+            if (m_state.oscillation != desired_swing_mode)
+            {
             oscillation_command.set_status(desired_swing_mode);
             oscillation_command.write_to_packet(packet_stream);
             add_packet_to_queue(packet_stream);
-        } else {
+            }
+        }
+        else {
             ESP_LOGW(TAG, "Unsupported swing mode was requested, ignoring");
         }
     }
