@@ -106,7 +106,7 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
         BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
         auto desired_fan_speed = get_mapped_fan_speed(fan_mode.value());
 
-        if (desired_fan_speed.has_value())
+        if (desired_fan_speed.has_value() && m_supported_fan_modes.count(fan_mode.value()))
         {
             if (m_state.fan_speed != desired_fan_speed.value())
             {
