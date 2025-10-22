@@ -40,7 +40,9 @@ public:
     void control(const climate::ClimateCall &call) override;
     float get_setup_priority() const override;
     void set_water_tank_sensor(binary_sensor::BinarySensor *sensor);
+    void add_supported_mode(climate::ClimateMode mode);
     void add_supported_fan_mode(climate::ClimateFanMode fan_mode);
+    void add_supported_swing_mode(climate::ClimateSwingMode swing_mode);
 
 protected:
     climate::ClimateTraits traits() override;
@@ -62,7 +64,9 @@ protected:
 private:
     AirConditionerState m_state;
     climate::ClimateTraits m_traits;
+    std::set<climate::ClimateMode> m_supported_modes;
     std::set<climate::ClimateFanMode> m_supported_fan_modes;
+    std::set<climate::ClimateSwingMode> m_supported_swing_modes;
     binary_sensor::BinarySensor *m_water_tank_sensor;
     PacketParser m_parser;
     RingBuffer<uint8_t, 128> m_data_buffer;
