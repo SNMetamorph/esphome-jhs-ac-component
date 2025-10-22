@@ -25,15 +25,17 @@ void JhsAirConditioner::setup()
     m_traits.set_supports_current_temperature(true);
     m_traits.set_supports_two_point_target_temperature(false);
 
-    m_traits.set_supported_swing_modes({climate::CLIMATE_SWING_OFF, climate::CLIMATE_SWING_VERTICAL});
-    m_traits.set_supported_modes({climate::CLIMATE_MODE_OFF,
-                                climate::CLIMATE_MODE_COOL,
-                                climate::CLIMATE_MODE_DRY,
-                                climate::CLIMATE_MODE_FAN_ONLY});
+    if (!m_supported_swing_modes.empty()) {
+        m_supported_swing_modes.insert(climate::CLIMATE_SWING_OFF);
+        m_traits.set_supported_swing_modes(m_supported_swing_modes);
+    }
+    
+    m_supported_modes.insert(climate::CLIMATE_MODE_OFF);
+    m_traits.set_supported_modes(m_supported_modes);
 
     // Fan modes will be set via add_supported_fan_mode() calls from configuration
     m_traits.set_supported_fan_modes(m_supported_fan_modes);
-
+    
     m_traits.set_supported_presets({climate::CLIMATE_PRESET_NONE, 
                                     climate::CLIMATE_PRESET_SLEEP});
 }
@@ -153,13 +155,17 @@ void JhsAirConditioner::control(const climate::ClimateCall &call)
 
     if (swing_mode.has_value())
     {
-        OscillationCommand oscillation_command;
-        BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
-        const bool desired_swing_mode = swing_mode.value() == climate::CLIMATE_SWING_VERTICAL;
+        if (m_supported_swing_modes.count(swing_mode.value())) {
+            OscillationCommand oscillation_command;
+            BinaryOutputStream packet_stream(packet_data, sizeof(packet_data));
+            const bool desired_swing_mode = swing_mode.value() == climate::CLIMATE_SWING_VERTICAL;
 
-        oscillation_command.set_status(desired_swing_mode);
-        oscillation_command.write_to_packet(packet_stream);
-        add_packet_to_queue(packet_stream);
+            oscillation_command.set_status(desired_swing_mode);
+            oscillation_command.write_to_packet(packet_stream);
+            add_packet_to_queue(packet_stream);
+        } else {
+            ESP_LOGW(TAG, "Unsupported swing mode was requested, ignoring");
+        }
     }
 }
 
@@ -310,6 +316,9 @@ void JhsAirConditioner::update_ac_state(const AirConditionerState &state)
         case AirConditionerState::Mode::Fan:
             this->mode = climate::CLIMATE_MODE_FAN_ONLY;
             break;
+        case AirConditionerState::Mode::Heat:
+            this->mode = climate::CLIMATE_MODE_HEAT;
+            break;
         default:
             ESP_LOGW(TAG, "Unknown AC mode, state update was interrupted");
             return;
@@ -352,14 +361,25 @@ std::optional<AirConditionerState::Mode> JhsAirConditioner::get_mapped_ac_mode(c
         case climate::CLIMATE_MODE_COOL: return AirConditionerState::Mode::Cool;
         case climate::CLIMATE_MODE_DRY: return AirConditionerState::Mode::Dehumidifying;
         case climate::CLIMATE_MODE_FAN_ONLY: return AirConditionerState::Mode::Fan;
+        case climate::CLIMATE_MODE_HEAT: return AirConditionerState::Mode::Heat;
         default: return std::nullopt;
     }
+}
+
+void JhsAirConditioner::add_supported_mode(climate::ClimateMode mode)
+{
+    m_supported_modes.insert(mode);
 }
 
 void JhsAirConditioner::add_supported_fan_mode(climate::ClimateFanMode fan_mode)
 {
     m_supported_fan_modes.insert(fan_mode);
     m_traits.set_supported_fan_modes(m_supported_fan_modes);
+}
+
+void JhsAirConditioner::add_supported_swing_mode(climate::ClimateSwingMode swing_mode)
+{
+    m_supported_swing_modes.insert(swing_mode);
 }
 
 std::optional<climate::ClimateFanMode> JhsAirConditioner::get_mapped_climate_fan_mode(AirConditionerState::FanSpeed fan_speed) const
