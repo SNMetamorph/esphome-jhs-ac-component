@@ -21,9 +21,12 @@ Next, use this scheme to connect all the necessary pins:
 
 ## Tested & supported air conditioners
 
-- Timberk T-PAC07-P12E
-- Timberk T-PAC07-P09E-WF
-- Goldair GCPAC350W
+| *Brand*      | *Model name*      | *Protocol version*
+|--------------|-------------------|-------------------
+| Timberk      | T-PAC07-P12E      | 1
+| Timberk      | T-PAC07-P09E-WF   | 1
+| Goldair      | GCPAC350W         | 1
+| Lifetime Air | JHS-A016-09KR2/A  | 2
 
 Feel free to share your experience in repository issues or submit pull requests to make this list more completed.
 
