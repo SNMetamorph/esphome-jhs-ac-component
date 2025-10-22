@@ -11,7 +11,8 @@ public:
     {
         Cool = 0x1,
         Dehumidifying = 0x2,
-        Fan = 0x3
+        Fan = 0x3,
+        Heat = 0x4
     };
 
     enum class FanSpeed : uint8_t
