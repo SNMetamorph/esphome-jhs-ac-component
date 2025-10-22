@@ -295,7 +295,6 @@ void JhsAirConditioner::dump_ac_state(const AirConditionerState &state)
     ESP_LOGD(TAG, "  Temperature units: %s", (state.temperature_unit == AirConditionerState::TemperatureUnit::Celsius) ? "Celsius" : "Fahrenheit");
     ESP_LOGD(TAG, "  Water tank state: %s", (state.water_tank_state == AirConditionerState::WaterTankState::Empty) ? "Empty" : "Full");
 #if VERBOSE_LOGGING == 1
-    ESP_LOGD(TAG, "  Byte [08]: 0x%02X", state.byte_08);
     ESP_LOGD(TAG, "  Byte [0A]: 0x%02X", state.byte_0A);
     ESP_LOGD(TAG, "  Byte [0B]: 0x%02X", state.byte_0B);
     ESP_LOGD(TAG, "  Byte [0C]: 0x%02X", state.byte_0C);

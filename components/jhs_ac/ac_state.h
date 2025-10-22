@@ -48,7 +48,6 @@ public:
     WaterTankState water_tank_state;
 
     // debugging stuff, may help with futher JHS protocol reverse-engineering
-    uint8_t byte_08;
     uint8_t byte_0A;
     uint8_t byte_0B;
     uint8_t byte_0C;
