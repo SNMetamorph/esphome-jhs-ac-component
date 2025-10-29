@@ -56,4 +56,3 @@ climate:
     supported_swing_modes: # add VERTICAL swing mode, if your unit supports it
     water_tank_status:
       name: Water Tank Status
-      internal: false

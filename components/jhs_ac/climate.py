@@ -3,12 +3,9 @@ import esphome.codegen as cg
 
 from esphome.components import climate, uart, binary_sensor
 from esphome.const import (
-    CONF_ID,
-    CONF_INTERNAL
+    CONF_ID
 )
 from esphome.components.climate import (
-    ClimatePreset,
-    ClimateFanMode,
     validate_climate_fan_mode,
     validate_climate_swing_mode,
     validate_climate_mode,
@@ -40,10 +37,6 @@ CONFIG_SCHEMA = cv.All(
             cv.Optional(CONF_SUPPORTED_SWING_MODES): cv.ensure_list(validate_climate_swing_mode),
             cv.Optional(CONF_WATER_TANK_STATUS): binary_sensor.binary_sensor_schema(
                 icon=ICON_WATER_TANK_STATUS,
-            ).extend(
-                {
-                    cv.Optional(CONF_INTERNAL, default="true"): cv.boolean,
-                }
             ),
         }
     )
@@ -58,17 +51,14 @@ async def to_code(config):
 
     cg.add_define("JHS_AC_PROTOCOL_VERSION", config[CONF_PROTOCOL_VERSION])
     
-    # Configure supported modes
     if CONF_SUPPORTED_MODES in config:
         for mode in config[CONF_SUPPORTED_MODES]:
             cg.add(var.add_supported_mode(mode))
 
-    # Configure supported fan modes
     if CONF_SUPPORTED_FAN_MODES in config:
         for fan_mode in config[CONF_SUPPORTED_FAN_MODES]:
             cg.add(var.add_supported_fan_mode(fan_mode))
     
-    # Configure supported swing modes
     if CONF_SUPPORTED_SWING_MODES in config:
         for swing_mode in config[CONF_SUPPORTED_SWING_MODES]:
             cg.add(var.add_supported_swing_mode(swing_mode))
