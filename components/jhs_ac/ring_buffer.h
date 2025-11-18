@@ -2,6 +2,8 @@
 #include <optional>
 #include <stdint.h>
 
+namespace esphome::jhs_ac {
+
 template<class T, uint32_t N>
 class RingBuffer 
 {
@@ -53,3 +55,5 @@ private:
     uint32_t m_tail;
     uint32_t m_count;
 };
+
+} // namespace esphome::jhs_ac

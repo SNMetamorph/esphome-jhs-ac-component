@@ -2,6 +2,8 @@
 #include <optional>
 #include <stdint.h>
 
+namespace esphome::jhs_ac {
+
 template<class T, uint32_t N>
 class FixedVector
 {
@@ -44,3 +46,5 @@ private:
     uint32_t m_size;
     T m_buffer[N];
 };
+
+} // namespace esphome::jhs_ac

@@ -2,6 +2,8 @@
 #include "fixed_vector.h"
 #include <stdint.h>
 
+namespace esphome::jhs_ac {
+
 class PacketParser
 {
 public:
@@ -26,3 +28,5 @@ private:
     State m_current_state;
     FixedVector<uint8_t, 32> m_buffer;
 };
+
+} // namespace esphome::jhs_ac

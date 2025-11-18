@@ -1,6 +1,8 @@
 #include "packet_parser.h"
 #include <cstring>
 
+namespace esphome::jhs_ac {
+
 void PacketParser::process_byte(uint8_t data)
 {
     if (m_current_state == State::Pending) 
@@ -48,3 +50,5 @@ uint32_t PacketParser::read_packet(uint8_t *buffer, uint32_t buffer_size)
     }
     return 0;
 }
+
+} // namespace esphome::jhs_ac
