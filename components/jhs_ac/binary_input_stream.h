@@ -1,6 +1,6 @@
 #pragma once
+#include "esphome/core/optional.h"
 #include <stdint.h>
-#include <optional>
 #include <cstring>
 
 namespace esphome::jhs_ac {
@@ -13,24 +13,24 @@ public:
         m_offset(0),
         m_data(data) {}
 
-    template<class T> std::optional<T> read() 
+    template<class T> optional<T> read() 
     {
         uint8_t buffer[sizeof(T)] = {0};
         T *object = reinterpret_cast<T*>(buffer);
         if (sizeof(T) <= remaining_length()) 
         {
-            memcpy(buffer, m_data + m_offset, sizeof(T));
+            std::memcpy(buffer, m_data + m_offset, sizeof(T));
             m_offset += sizeof(T);
-            return std::optional<T>(*object);
+            return optional<T>(*object);
         }
-        return std::nullopt;
+        return nullopt;
     }
 
     bool read_bytes(uint8_t *data, uint32_t count)
     {
         if (count <= remaining_length())
         {
-            memcpy(data, m_data + m_offset, count);
+            std::memcpy(data, m_data + m_offset, count);
             m_offset += count;
             return true;
         }

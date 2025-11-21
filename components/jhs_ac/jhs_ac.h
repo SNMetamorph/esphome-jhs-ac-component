@@ -4,11 +4,11 @@
 #include "esphome/components/uart/uart.h"
 #include "esphome/components/binary_sensor/binary_sensor.h"
 #include "esphome/core/log.h"
+#include "esphome/core/optional.h"
 #include "binary_output_stream.h"
 #include "ac_state.h"
 #include "packet_parser.h"
 #include "ring_buffer.h"
-#include <optional>
 
 namespace esphome::jhs_ac {
 
@@ -54,9 +54,9 @@ protected:
     void update_ac_state(const AirConditionerState &state);
     bool validate_state_packet_checksum(const BinaryInputStream &stream, uint32_t checksum);
 
-    std::optional<AirConditionerState::Mode> get_mapped_ac_mode(climate::ClimateMode climate_mode) const;
-    std::optional<AirConditionerState::FanSpeed> get_mapped_fan_speed(climate::ClimateFanMode fan_mode) const;
-    std::optional<climate::ClimateFanMode> get_mapped_climate_fan_mode(AirConditionerState::FanSpeed fan_speed) const;
+    optional<AirConditionerState::Mode> get_mapped_ac_mode(climate::ClimateMode climate_mode) const;
+    optional<AirConditionerState::FanSpeed> get_mapped_fan_speed(climate::ClimateFanMode fan_mode) const;
+    optional<climate::ClimateFanMode> get_mapped_climate_fan_mode(AirConditionerState::FanSpeed fan_speed) const;
     const char* get_fan_speed_name(AirConditionerState::FanSpeed fan_speed) const;
 
 private:

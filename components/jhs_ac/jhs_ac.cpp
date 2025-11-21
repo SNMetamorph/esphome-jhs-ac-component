@@ -361,7 +361,7 @@ bool JhsAirConditioner::validate_state_packet_checksum(const BinaryInputStream &
     return (sum % 256) == checksum;
 }
 
-std::optional<AirConditionerState::Mode> JhsAirConditioner::get_mapped_ac_mode(climate::ClimateMode climate_mode) const
+optional<AirConditionerState::Mode> JhsAirConditioner::get_mapped_ac_mode(climate::ClimateMode climate_mode) const
 {
     switch (climate_mode)
     {
@@ -369,7 +369,7 @@ std::optional<AirConditionerState::Mode> JhsAirConditioner::get_mapped_ac_mode(c
         case climate::CLIMATE_MODE_DRY: return AirConditionerState::Mode::Dehumidifying;
         case climate::CLIMATE_MODE_FAN_ONLY: return AirConditionerState::Mode::Fan;
         case climate::CLIMATE_MODE_HEAT: return AirConditionerState::Mode::Heat;
-        default: return std::nullopt;
+        default: return nullopt;
     }
 }
 
@@ -388,14 +388,14 @@ void JhsAirConditioner::add_supported_swing_mode(climate::ClimateSwingMode swing
     m_supported_swing_modes.insert(swing_mode);
 }
 
-std::optional<climate::ClimateFanMode> JhsAirConditioner::get_mapped_climate_fan_mode(AirConditionerState::FanSpeed fan_speed) const
+optional<climate::ClimateFanMode> JhsAirConditioner::get_mapped_climate_fan_mode(AirConditionerState::FanSpeed fan_speed) const
 {
     switch (fan_speed)
     {
         case AirConditionerState::FanSpeed::Low: return climate::CLIMATE_FAN_LOW;
         case AirConditionerState::FanSpeed::Medium: return climate::CLIMATE_FAN_MEDIUM;
         case AirConditionerState::FanSpeed::High: return climate::CLIMATE_FAN_HIGH;
-        default: return std::nullopt;
+        default: return nullopt;
     }
 }
 
@@ -410,14 +410,14 @@ const char* JhsAirConditioner::get_fan_speed_name(AirConditionerState::FanSpeed 
     }
 }
 
-std::optional<AirConditionerState::FanSpeed> JhsAirConditioner::get_mapped_fan_speed(climate::ClimateFanMode fan_mode) const
+optional<AirConditionerState::FanSpeed> JhsAirConditioner::get_mapped_fan_speed(climate::ClimateFanMode fan_mode) const
 {
     switch (fan_mode)
     {
         case climate::CLIMATE_FAN_LOW: return AirConditionerState::FanSpeed::Low;
         case climate::CLIMATE_FAN_MEDIUM: return AirConditionerState::FanSpeed::Medium;
         case climate::CLIMATE_FAN_HIGH: return AirConditionerState::FanSpeed::High;
-        default: return std::nullopt; 
+        default: return nullopt; 
     }
 }
 

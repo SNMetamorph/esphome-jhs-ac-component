@@ -1,5 +1,5 @@
 #pragma once
-#include <optional>
+#include "esphome/core/optional.h"
 #include <stdint.h>
 
 namespace esphome::jhs_ac {
@@ -31,7 +31,7 @@ public:
         return false;
     }
 
-    std::optional<T> pop_back() 
+    optional<T> pop_back() 
     {
         T result = m_buffer[m_size];
         if (m_size > 0) 
@@ -39,7 +39,7 @@ public:
             m_size--;
             return result;
         }
-        return std::nullopt;
+        return nullopt;
     }
 
 private:

@@ -1,5 +1,5 @@
 #pragma once
-#include <optional>
+#include "esphome/core/optional.h"
 #include <stdint.h>
 
 namespace esphome::jhs_ac {
@@ -31,10 +31,10 @@ public:
         return true;
     }
 
-    std::optional<T> pop() 
+    optional<T> pop() 
     {
         if (is_empty()) {
-            return std::nullopt;
+            return nullopt;
         }
         T result = m_buffer[m_tail];
         m_tail = (m_tail + 1) % N;
