@@ -22,8 +22,7 @@ void JhsAirConditioner::setup()
     m_traits.set_visual_min_temperature(MIN_VALID_TEMPERATURE);
     m_traits.set_visual_max_temperature(MAX_VALID_TEMPERATURE);
     m_traits.set_visual_temperature_step(TEMPERATURE_STEP);
-    m_traits.set_supports_current_temperature(true);
-    m_traits.set_supports_two_point_target_temperature(false);
+    m_traits.add_feature_flags(climate::CLIMATE_SUPPORTS_CURRENT_TEMPERATURE);
 
     if (!m_supported_swing_modes.empty()) {
         m_supported_swing_modes.insert(climate::CLIMATE_SWING_OFF);

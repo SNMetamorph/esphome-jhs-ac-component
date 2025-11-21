@@ -1,5 +1,4 @@
 #pragma once
-
 #include "esphome/core/component.h"
 #include "esphome/components/climate/climate.h"
 #include "esphome/components/uart/uart.h"
@@ -10,7 +9,6 @@
 #include "packet_parser.h"
 #include "ring_buffer.h"
 #include <optional>
-#include <set>
 
 namespace esphome::jhs_ac {
 
@@ -63,15 +61,15 @@ protected:
 
 private:
     AirConditionerState m_state;
-    climate::ClimateTraits m_traits;
-    std::set<climate::ClimateMode> m_supported_modes;
-    std::set<climate::ClimateFanMode> m_supported_fan_modes;
-    std::set<climate::ClimateSwingMode> m_supported_swing_modes;
-    binary_sensor::BinarySensor *m_water_tank_sensor;
     PacketParser m_parser;
+    binary_sensor::BinarySensor *m_water_tank_sensor;
     RingBuffer<uint8_t, 128> m_data_buffer;
     RingBuffer<CommandPacket, 8> m_tx_queue;
     uint32_t m_last_command_send_time;
+    climate::ClimateTraits m_traits;
+    climate::ClimateModeMask m_supported_modes;
+    climate::ClimateFanModeMask m_supported_fan_modes;
+    climate::ClimateSwingModeMask m_supported_swing_modes;
 };
 
 } // namespace esphome::jhs_ac
