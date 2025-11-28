@@ -6,6 +6,7 @@
 #include "sleep_command.h"
 #include "temperature_command.h"
 #include "oscillation_command.h"
+#include "esphome/core/version.h"
 #include "esphome/core/macros.h"
 #include "esphome/core/application.h"
 #include <cmath>
@@ -13,6 +14,10 @@
 #include <algorithm>
 
 #define VERBOSE_LOGGING 1
+
+#if ESPHOME_VERSION_CODE < VERSION_CODE(2025, 11, 0)
+static_assert(false, "Minimal supported ESPHome version is 2025.11.0");
+#endif
 
 namespace esphome::jhs_ac {
 
