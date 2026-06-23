@@ -27,6 +27,7 @@ Next, use this scheme to connect all the necessary pins:
 | Timberk      | T-PAC07-P09E-WF   | 1                  | [A029A](https://www.jhs8.com/products_detail/107.html)
 | Goldair      | GCPAC350W         | 1                  | [A018C](https://www.jhs8.com/products_detail/26.html)
 | Lifetime Air | JHS-A016-09KR2/A  | 2                  | [A016A](https://www.jhs8.com/products_detail/10.html)
+| Honeywell    | HJ14CESVWK        | 1                  | [A020A](https://www.jhs8.com/products_detail/43.html)
 
 Feel free to share your experience in repository issues or submit pull requests to make this list more completed.
 
