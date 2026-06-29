@@ -63,7 +63,11 @@ climate:
 
 You can also check `/examples` folder for existing ESPHome configurations for specific air conditioner models.
 
-## Tested & supported air conditioners
+## Tested air conditioners
+
+Feel free to share your experience in repository issues or submit pull requests to make this list more completed.
+
+### Supported
 
 | *Brand*      | *Model name*      | *Protocol version* | *OEM model name*
 |--------------|-------------------|--------------------|-----------------
@@ -73,7 +77,12 @@ You can also check `/examples` folder for existing ESPHome configurations for sp
 | Lifetime Air | JHS-A016-09KR2/A  | 2                  | [A016A](https://www.jhs8.com/products_detail/10.html)
 | Honeywell    | HJ14CESVWK        | 1                  | [A020A](https://www.jhs8.com/products_detail/43.html)
 
-Feel free to share your experience in repository issues or submit pull requests to make this list more completed.
+### Unsupported
+
+| *Brand*      | *Model name*      | *OEM model name*                                      | *Description*
+|--------------|-------------------|-------------------------------------------------------|-----------------
+| KGOGO        | JHS-A016-09KR2/K  | [A016A](https://www.jhs8.com/products_detail/10.html) | Uses Tuya protocol ([`#6`](https://github.com/SNMetamorph/esphome-jhs-ac-component/issues/6))
+
 
 ## Credits
 
