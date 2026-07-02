@@ -69,13 +69,14 @@ Feel free to share your experience in repository issues or submit pull requests 
 
 ### Supported
 
-| *Brand*      | *Model name*      | *Protocol version* | *OEM model name*
-|--------------|-------------------|--------------------|-----------------
-| Timberk      | T-PAC07-P12E      | 1                  | [A029A](https://www.jhs8.com/products_detail/107.html)
-| Timberk      | T-PAC07-P09E-WF   | 1                  | [A029A](https://www.jhs8.com/products_detail/107.html)
-| Goldair      | GCPAC350W         | 1                  | [A018C](https://www.jhs8.com/products_detail/26.html)
-| Lifetime Air | JHS-A016-09KR2/A  | 2                  | [A016A](https://www.jhs8.com/products_detail/10.html)
-| Honeywell    | HJ14CESVWK        | 1                  | [A020A](https://www.jhs8.com/products_detail/43.html)
+| *Brand*      | *Model name*      | *OEM model name*                                       | *Protocol version*
+|--------------|-------------------|--------------------------------------------------------|-------------------
+| Timberk      | T-PAC07-P12E      | [A029A](https://www.jhs8.com/products_detail/107.html) | 1
+| Timberk      | T-PAC07-P09E-WF   | [A029A](https://www.jhs8.com/products_detail/107.html) | 1
+| Goldair      | GCPAC350W         | [A018C](https://www.jhs8.com/products_detail/26.html)  | 1
+| Lifetime Air | JHS-A016-09KR2/A  | [A016A](https://www.jhs8.com/products_detail/10.html)  | 2
+| Honeywell    | HJ14CESVWK        | [A020A](https://www.jhs8.com/products_detail/43.html)  | 1
+| Deltaco      | SH-AC02           | [A018A](https://www.jhs8.com/products_detail/24.html)  | 2
 
 ### Unsupported
 
