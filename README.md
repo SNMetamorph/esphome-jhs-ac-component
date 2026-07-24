@@ -78,6 +78,7 @@ Feel free to share your experience in repository issues or submit pull requests 
 | Honeywell    | HJ14CESVWK        | [A020A](https://www.jhs8.com/products_detail/43.html)  | 1
 | Deltaco      | SH-AC02           | [A018A](https://www.jhs8.com/products_detail/24.html)  | 2
 | Silvercrest  | SMK 7000 B2       | [A019G](https://www.jhs8.com/products_detail/39.html)  | 1
+| Tronic       | TLK 7000 C2       | [A019G](https://www.jhs8.com/products_detail/39.html)  | 1
 
 ### Unsupported
 
