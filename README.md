@@ -1,8 +1,8 @@
 # ESPHome component for JHS manufactured AC units
 
-External ESPHome component for air conditioners made by [JHS (Dongguan Jinhongsheng Electric Co., Ltd.)](https://www.jhs8.com/). These air conditioners known under brands Timberk, Hyundai, Scoole, Lifetime Air.
+External ESPHome component for air conditioners made by [JHS (Dongguan Jinhongsheng Electric Co., Ltd.)](https://www.jhs8.com/). These air conditioners are known under such brands as Timberk, Hyundai, Scoole, Lifetime Air, Goldair, Honeywell, and others.
 
-Component allows you to control the AC from Home Assistant. It works by using UART interface between Wi-Fi module and AC main board, and in this scheme ESP8266 or ESP32 are used as replacement for Wi-Fi module (even if AC unit does not have module out of the box).
+Component allows you to control the air conditioner from Home Assistant. It works by using UART interface between Wi-Fi module and AC main board, and in this scheme ESP8266 or ESP32 are used as replacement for Wi-Fi module (even if AC unit does not have module out of the box).
 
 ## Wiring scheme
 
@@ -31,6 +31,7 @@ external_components:
 ```
 
 The second section is configuration of UART interface. It is mandatory for communicating between AC and ESPHome device:
+
 ```yaml
 uart:
   # ATTENTION! Use GPIO4 (D2) and GPIO5 (D1) as the TX and RX for NodeMCU-like boards.
@@ -44,6 +45,7 @@ uart:
 ```
 
 The third section is definition of your air conditioning device itself. Here, you should specify the device's capabilities, model name, and protocol version. You can determine this through trial and error, or refer to the table of supported & tested air conditioners below.
+
 ```yaml
 climate:
   - platform: jhs_ac
@@ -85,7 +87,6 @@ Feel free to share your experience in repository issues or submit pull requests 
 | *Brand*      | *Model name*      | *OEM model name*                                      | *Description*
 |--------------|-------------------|-------------------------------------------------------|-----------------
 | KGOGO        | JHS-A016-09KR2/K  | [A016A](https://www.jhs8.com/products_detail/10.html) | Uses Tuya protocol ([`#6`](https://github.com/SNMetamorph/esphome-jhs-ac-component/issues/6))
-
 
 ## Credits
 
