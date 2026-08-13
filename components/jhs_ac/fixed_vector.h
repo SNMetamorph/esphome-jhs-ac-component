@@ -8,7 +8,7 @@ template<class T, uint32_t N>
 class FixedVector
 {
 public:
-    FixedVector() : m_size(0) {}
+    FixedVector() : m_size(0), m_buffer{} {}
 
     void clear() { m_size = 0; }
     uint32_t size() const { return m_size; }
